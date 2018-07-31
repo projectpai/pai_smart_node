@@ -1,0 +1,1 @@
+![alt text](images/smartnode-structure-v.0.0.1.png)
