@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Float
+from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -8,11 +9,12 @@ class Ico(Base):
     __tablename__ = 'ico'
 
     id = Column(Integer, primary_key=True)
+    ico_name = Column(String, nullable=False)
     asset = Column(String, unique=True, nullable=False)
     quantity = Column(Integer, nullable=False)
     description = Column(String, nullable=False)
-    start_date = Column(DateTime, nullable=False)
-    end_date = Column(DateTime, nullable=False)
+    start_date = Column(String, nullable=False)
+    end_date = Column(String, nullable=False)
     is_approved = Column(Boolean, default=False)
     is_active = Column(Boolean, default=False)
     asset_source_address = Column(String(36))

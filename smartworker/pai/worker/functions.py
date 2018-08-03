@@ -7,7 +7,7 @@ from oben.aws.utils.exceptions import MessageProducerError
 import config
 from requests.auth import HTTPBasicAuth
 from db.models import Ico
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, exc
 
 
 def connect_engine():
@@ -29,25 +29,24 @@ def register_ico(**kwargs):
 
     if not all(k in kwargs for k in required_params):
         raise MessageProducerError("Following parameters {} are required".format(required_params))
-
     conn = connect_engine()
     ico = Ico()
     try:
         response = ico.save_ico(conn=conn, **kwargs)
-    except:
-        pass
-
-    return True
+        pai_response = generate_new_account_address(kwargs.get('asset'))
+    except exc.IntegrityError as e:
+        raise MessageProducerError("Could not register ICO {}".format(e))
+    return pai_response['result']
 
 
 def get_all_icos():
     conn = connect_engine()
     ico = Ico()
     try:
-        response = ico.get_all(conn=conn)
-        print(response)
+        res = ico.get_all(conn=conn)
     except:
-        pass
+        raise MessageProducerError("Could not get list")
+    return res
 
 
 def get_ico_info(id):
@@ -100,16 +99,16 @@ def send_asset(**kwargs):
     return counterparty_post(payload)
 
 
-def generate_new_account_address(**kwargs):
-    if not kwargs.get('name'):
+def generate_new_account_address(name):
+    if not name:
         raise MessageProducerError('Required name of account')
 
     payload = {
-        "method": "generatenewaddress",
-        "params": [kwargs.get("name")]
+        "method": "getnewaddress",
+        "params": [name]
     }
-
-    return paicoin_post(payload)
+    r = paicoin_post(payload)
+    return r.json()
 
 
 def counterparty_post(payload):

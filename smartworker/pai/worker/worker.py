@@ -8,7 +8,7 @@ from oben.aws.utils.exceptions import MessageProducerError
 from oben.aws.worker.abstract_worker import AbstractWorker
 from requests.auth import HTTPBasicAuth
 import config
-from functions import create_issuance, send_asset, register_ico, get_all_icos
+from functions import (create_issuance, send_asset, register_ico, get_all_icos, get_ico_info)
 
 
 class SmartWorker(AbstractWorker):
@@ -41,12 +41,13 @@ class SmartWorker(AbstractWorker):
 
         for field_id in self.root_nodes:
             if field_id not in message_data:
-                raise MessageProducerError("Incoming message does not contain {} field".format(field_id))
+                msg = "Incoming message does not contain {} field".format(field_id)
+                raise MessageProducerError(msg)
 
         if len(message_data) != len(self.root_nodes):
-            raise MessageProducerError(
-                "Incoming message contains unspecified fields.\nIt should contain only {}".format(
-                    ', '.join(self.root_nodes)))
+            msg = "Incoming message contains unspecified fields.\nIt should contain only {}".format(
+                    ', '.join(self.root_nodes))
+            raise MessageProducerError(msg)
 
         if 'redisChannel' not in message_data['redisData']:
             raise MessageProducerError("Incoming message redisData must contain redisChannel field")
@@ -58,7 +59,6 @@ class SmartWorker(AbstractWorker):
         try:
             message_data = json.loads(message)
         except ValueError:
-            self.logger.error("Incoming message couldn't not be json parsed")
             raise MessageProducerError("Incoming message couldn't not be json parsed")
 
         return message_data
@@ -75,12 +75,13 @@ class SmartWorker(AbstractWorker):
 
         method = message_body['input']['method']
         params = message_body['input']['params']
-
         # TODO: Process message
         if method == 'register_ico':
             response = register_ico(**params)
         elif method == 'list_icos':
             response = get_all_icos()
+        elif method == 'get_ico_info':
+            response = get_ico_info(**params)
         elif method == 'issuance':
             # do issuance
             response = create_issuance(**params)
@@ -106,7 +107,7 @@ class SmartWorker(AbstractWorker):
                     "response": response
                 },
                 "worker_data": {
-                    "workerIpAddress": self._worker_ip,
+                    "workerIpAddress": "172.31.27.70",
                     "workerEnvironment": self._worker_environment
                 }
 
@@ -128,7 +129,7 @@ class SmartWorker(AbstractWorker):
                     "status": "ERROR"
                 },
                 "worker_data": {
-                    'workerIpAddress': self._worker_ip,
+                    'workerIpAddress': "172.31.27.70",
                     "workerEnvironment": self._worker_environment
                 }
             }
