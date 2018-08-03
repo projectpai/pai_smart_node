@@ -43,6 +43,25 @@ Uses DevSmartNodeSQS queue
     }
 }
 </pre>
+<p><strong>Output</strong></p>
+<pre>
+{
+  "SmartWorker": {
+    "status": {
+      "status": "SUCCESS",
+      "progress": 100,
+      "message": "Finished worker"
+    },
+    "output": {
+      "response": "unique_ico_address"
+    },
+    "worker_data": {
+      "workerIpAddress": "172.31.27.70",
+      "workerEnvironment": "Environment"
+    }
+  }
+}
+</pre>
 </details>
 
 <details>
@@ -63,6 +82,25 @@ Uses DevSmartNodeSQS queue
     }
 }
 </pre>
+<p><strong>Output</strong></p>
+<pre>
+{
+  "SmartWorker": {
+    "status": {
+      "status": "SUCCESS",
+      "progress": 100,
+      "message": "Finished worker"
+    },
+    "output": {
+      "response": "ico_info"
+    },
+    "worker_data": {
+      "workerIpAddress": "172.31.27.70",
+      "workerEnvironment": "Environment"
+    }
+  }
+}
+</pre>
 </details>
 
 <details>
@@ -81,6 +119,25 @@ Uses DevSmartNodeSQS queue
         (?)
       }
     }
+}
+</pre>
+<p><strong>Output</strong></p>
+<pre>
+{
+  "SmartWorker": {
+    "status": {
+      "status": "SUCCESS",
+      "progress": 100,
+      "message": "Finished worker"
+    },
+    "output": {
+      "response": ["ico_list"]
+    },
+    "worker_data": {
+      "workerIpAddress": "172.31.27.70",
+      "workerEnvironment": "Environment"
+    }
+  }
 }
 </pre>
 </details>
@@ -108,6 +165,25 @@ Uses DevSmartNodeSQS queue
     }
 }
 </pre>
+<p><strong>Output</strong></p>
+<pre>
+{
+  "SmartWorker": {
+    "status": {
+      "status": "SUCCESS",
+      "progress": 100,
+      "message": "Finished worker"
+    },
+    "output": {
+      "response": "unigned_tx_hex"
+    },
+    "worker_data": {
+      "workerIpAddress": "172.31.27.70",
+      "workerEnvironment": "Environment"
+    }
+  }
+}
+</pre>
 </details>
 
 <details>
@@ -123,9 +199,29 @@ Uses DevSmartNodeSQS queue
     "input": {
       "method": "get_unpaid_transactions",
       "params": {
-        (?)
+        "ico": "ico_name",
+        "params": [params]
       }
     }
+}
+</pre>
+<p><strong>Output</strong></p>
+<pre>
+{
+  "SmartWorker": {
+    "status": {
+      "status": "SUCCESS",
+      "progress": 100,
+      "message": "Finished worker"
+    },
+    "output": {
+      "response": ["transactions_list"]
+    },
+    "worker_data": {
+      "workerIpAddress": "172.31.27.70",
+      "workerEnvironment": "Environment"
+    }
+  }
 }
 </pre>
 </details>
@@ -146,6 +242,25 @@ Uses DevSmartNodeSQS queue
         [transactions_list]
       }
     }
+}
+</pre>
+<p><strong>Output</strong></p>
+<pre>
+{
+  "SmartWorker": {
+    "status": {
+      "status": "SUCCESS",
+      "progress": 100,
+      "message": "Finished worker"
+    },
+    "output": {
+      "response": ["txid_list"]
+    },
+    "worker_data": {
+      "workerIpAddress": "172.31.27.70",
+      "workerEnvironment": "Environment"
+    }
+  }
 }
 </pre>
 </details>
