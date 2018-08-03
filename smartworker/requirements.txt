@@ -1,0 +1,4 @@
+SQLAlchemy==1.2.10
+PyYAML==3.13
+psycopg2==2.7.5
+requests==2.19.1
