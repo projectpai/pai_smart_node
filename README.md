@@ -36,9 +36,7 @@ Uses DevSmartNodeSQS queue
         "end_date": "end_date",
         "asset": "BTC",
         "quantity": 10000000,
-        "divisible": "True",
         "description": "description of new asset",
-        "fee": 10000
       }
     }
 }
