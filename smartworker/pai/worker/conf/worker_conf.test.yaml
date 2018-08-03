@@ -1,0 +1,16 @@
+aws:
+    region: us-east-1
+    access_key: aaaaaaaaaaaaaaaa
+    secret_key: aaaaaaaaaaaaaaaaaaaaa
+    queue_name: aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+redis:
+    host: localhost
+    port: 6379
+    db: 10
+personnel_to_be_notified:
+    environment_errors:
+        - admin@test.com
+    message_producer_errors:
+        - producer@test.com
+    python_code_errors:
+        - coder@test.com
