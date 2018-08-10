@@ -55,7 +55,8 @@ class SmartWorker(AbstractWorker):
         if 'method' not in message_data['input']:
             raise MessageProducerError("Incoming message input must contain method name")
 
-    def get_message_body(self, message):
+    @staticmethod
+    def get_message_body(message):
         try:
             message_data = json.loads(message)
         except ValueError:
@@ -64,6 +65,7 @@ class SmartWorker(AbstractWorker):
         return message_data
 
     def process_message(self, message):
+
         self.error = False
         self.logger.info(message)
 
@@ -75,16 +77,34 @@ class SmartWorker(AbstractWorker):
 
         method = message_body['input']['method']
         params = message_body['input']['params']
+
         # TODO: Process message
         if method == 'register_ico':
-            response = register_ico(**params)
-        elif method == 'list_icos':
-            response = get_all_icos()
+            # returns source address
+            source_address = register_ico(**params)
+            response = {
+                'source_address': source_address
+            }
+        elif method == 'list_ico':
+            # list of all created icos
+            # TODO: add minimum filter params
+            list_ico = get_all_icos()
+            response = {
+                'all_ico': list_ico
+            }
         elif method == 'get_ico_info':
-            response = get_ico_info(**params)
+            # returns info about ico
+            # TODO: add
+            ico_info = get_ico_info(id=params['id'])
+            response = {
+                'ico_info': ico_info
+            }
         elif method == 'issuance':
             # do issuance
-            response = create_issuance(**params)
+            signed_hex = create_issuance(**params)
+            response = {
+                'signed_tx_hex': signed_hex
+            }
         elif method == 'send':
             # send asset
             response = send_asset(**params)
