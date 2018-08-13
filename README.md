@@ -12,6 +12,30 @@
 
 ![alt text](images/smartnode-structure-v.0.0.1.png)
 
+## ICO step by step guide 
+
+*(preliminary)*
+
+**1. Register ICO**
+
+Initial Registration of ICO, intended for creating initial ICO config, register required parameters and  saving address of ICO owner
+That method returns PAI address on which ICO assets will be created, so to issue new asset on that address we nned to have at least (??) 10 PAI coins
+
+**2. Send PAI**
+
+Send PAI coins on just created address. 
+
+**3. Issue asset**
+
+Create new asset which will be stored on above address
+
+So after that 3 steps are finished we can start receive payments from differend PAI wallets to new created address nad send assets back to contributor.
+In ICO initial config parameter "auto_payments" is True by default, so if required amount of PAI is on ICO address, assets will be sent to contributor in auto mode. If that parameter is False need to use workers methods:
+
+*get_unpaid_transactions*
+
+*pay_unpaid_transactions*
+
 ## Worker
 
 Uses DevSmartNodeSQS queue
