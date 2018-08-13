@@ -8,7 +8,7 @@ import yaml
 from oben.aws.utils.exceptions import MessageProducerError
 import config
 from requests.auth import HTTPBasicAuth
-from db.models import Ico
+from db.models import Ico, Transaction
 
 USER_DIR = os.path.expanduser('~')
 ICO_CONFIG_DIR = os.path.join(USER_DIR, '.ico', 'config')
@@ -85,7 +85,8 @@ def register_ico(**kwargs):
             'return_address': kwargs.get('return_address'),
             'price': kwargs.get('price'),
             'start_date': kwargs.get('start_date'),
-            'end_date': kwargs.get('start_date')
+            'end_date': kwargs.get('start_date'),
+            'auto_payments': kwargs.get('auto_payments') if kwargs.get('auto_payments') else True,
         },
         'optional_parameters': {
             'soft_cap': kwargs.get('soft_cap'),
@@ -93,9 +94,6 @@ def register_ico(**kwargs):
             'asset_long_name': kwargs.get('asset_long_name')
         },
         'additional_parameters': {
-            'is_isused': False,
-            'is_active': False,
-            'is_approved': False,
             'details': kwargs.get('details')
         }
     }
@@ -161,10 +159,23 @@ def create_issuance(**kwargs):
 
     # STEP 1: validation
     # TODO: Improve validation
-    # check for required params
+    # 1.1 check for required params
     for required_param in required_params:
         if required_param not in kwargs:
             raise MessageProducerError("Following parameter `{}` is required".format(required_param))
+
+    # 1.2 check for registered address
+    ico = Ico()
+    ico_info = ico.get_by_source_address(kwargs.get('source'))
+
+    if not ico_info:
+        # not registered attempt
+        raise MessageProducerError(
+            "Following address `{}` is not registered as ICO address".format(kwargs.get('source')))
+
+    if not ico_info['is_approved']:
+        raise MessageProducerError(
+            "Following ICO {} on `{}` address is not approved".format(ico_info['asset'], kwargs.get('source')))
 
     # STEP 2: create_issuance in party
     payload = {
@@ -175,10 +186,8 @@ def create_issuance(**kwargs):
     }
     # unsigned tx hex
     unsigned_tx_hex = counterparty_post(payload)
-
     # STEP 3: Sign and Send to the paicoin blockchain
     signed_tx_hex = sign_and_send(unsigned_tx_hex)
-
     return signed_tx_hex
 
 
@@ -218,8 +227,35 @@ def send_asset(**kwargs):
     return sign_and_send(unsigned_tx_hex)
 
 
-def import_address(name, address):
+def get_unpaid_transactions(source):
+    allowed_filters = ['unpaid']
 
+    # get unpaid transactions
+    transaction = Transaction()
+    return transaction.get_unpaid(source)
+
+
+def pay_unpaid_transactions(ico_id, tr_list):
+    # load ico
+    ico = Ico()
+    ico_info = ico.get_by_id(ico_id)
+    tx_ids = []
+    for transaction in tr_list:
+        source_address = transaction['asset_address']
+        destination_address = transaction['contributor_address']
+        # amount_to_send
+        amount_to_send = transaction['amount'] * ico_info['price']
+        asset = ico_info['asset']
+
+        unsigned_tx_hex = send_asset(source=source_address, destination=destination_address, asset=asset,
+                                     quantity=amount_to_send)
+        tx_id = sign_and_send(unsigned_tx_hex)
+        tx_ids.append(tx_id)
+
+    return tx_ids
+
+
+def import_address(name, address):
     payload = {
         "method": "importaddress",
         "params": [address, name]
@@ -249,7 +285,7 @@ def sign_and_send(unsigned_tx_hex):
     response = paicoin_post(sign_payload)
     if response.status_code in [200, 500]:
         response_json = response.json()
-        signed_hex = response_json['result']
+        signed_hex = response_json['result']['hex']
         # STEP 3.2: send raw transaction
 
         send_payload = {
@@ -265,6 +301,7 @@ def sign_and_send(unsigned_tx_hex):
             return tx_id
     else:
         raise MessageProducerError('Could not communicate with paicoin rpc server')
+
 
 def counterparty_post(payload):
     url = 'http://{}:{}/api/'.format(config.RPC_CONNECT, config.RPC_PORT)
@@ -298,7 +335,6 @@ def counterparty_post(payload):
 
 
 def paicoin_post(payload):
-
     url = 'http://{}:{}@{}:{}'.format(config.WALLET_USER, config.WALLET_PASSWORD, config.WALLET_CONNECT,
                                       config.WALLET_PORT)
     headers = {'content-type': 'application/json'}

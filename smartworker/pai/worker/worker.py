@@ -8,7 +8,7 @@ from oben.aws.utils.exceptions import MessageProducerError
 from oben.aws.worker.abstract_worker import AbstractWorker
 from requests.auth import HTTPBasicAuth
 import config
-from functions import (create_issuance, send_asset, register_ico, get_all_icos, get_ico_info)
+from functions import (create_issuance, send_asset, register_ico, get_all_icos, get_ico_info, get_unpaid_transactions)
 
 
 class SmartWorker(AbstractWorker):
@@ -94,7 +94,6 @@ class SmartWorker(AbstractWorker):
             }
         elif method == 'get_ico_info':
             # returns info about ico
-            # TODO: add
             ico_info = get_ico_info(id=params['id'])
             response = {
                 'ico_info': ico_info
@@ -104,6 +103,12 @@ class SmartWorker(AbstractWorker):
             signed_hex = create_issuance(**params)
             response = {
                 'signed_tx_hex': signed_hex
+            }
+        elif method == 'get_unpaid_transactions':
+            # returns unpaid ICO transactions
+            unpaid_transactions = get_unpaid_transactions(unpaid=True)
+            response = {
+                'unpaid_transactions': unpaid_transactions
             }
         elif method == 'send':
             # send asset

@@ -1,6 +1,7 @@
 import pathlib
 import yaml
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Float
+from sqlalchemy import and_
 from sqlalchemy import create_engine
 from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
@@ -69,6 +70,16 @@ class Ico(Base):
         )
         return [dict(r) for r in result]
 
+    def get_by_source_address(self, source_address):
+        ico = self.__table__
+        conn = connect_engine()
+        result = conn.execute(
+            ico.select().where(
+                ico.c.source_address == source_address
+            )
+        )
+        return [dict(r) for r in result][0]
+
     def update_source_address(self, conn, id, address):
         ico = self.__table__
         return conn.execute(
@@ -109,11 +120,14 @@ class Transaction(Base):
             transaction.insert().values(**kwargs)
         )
 
-    def get_unpaid(self, conn):
+    def get_unpaid(self, source):
         transaction = self.__table__
+        conn = connect_engine()
         result = conn.execute(
-            transaction.select().where(
-                transaction.c.is_paid == False
+            transaction.select().where(and_(
+                transaction.c.is_paid == False,
+                transaction.c.asset_address == source
+                )
             )
         )
 
