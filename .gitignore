@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Configuration files
+smartworker/pai/worker/conf/worker_conf.dev.yaml
